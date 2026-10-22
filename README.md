@@ -19,7 +19,11 @@ Toàn bộ ứng dụng nằm trong một file `index.html` (HTML, CSS, JavaScri
 
 **Luyện tập**
 - Lập trình: đoán kết quả → sắp xếp dòng code → tìm và sửa lỗi → tự viết code, có gợi ý từng bước và AI chấm. JavaScript chạy thật trong trình duyệt. Có “Sân code” để thử tự do.
-- Ngoại ngữ: nghe phát âm và nói theo, nghe chép, tập viết tay (AI chấm chữ viết), điền từ, ghép câu, dịch hai chiều.
+- Ngoại ngữ:
+  - **Học nhanh 5 phút** (kiểu Duolingo): 12 câu trộn nhiều dạng (chọn nghĩa, nghe chọn từ, ghép cặp, xếp câu, nghe và gõ lại), câu sai quay lại cuối bài, có âm thanh, phím tắt 1–4 và Enter.
+  - **Ngữ pháp** kiểu Bunpro: mẫu câu, nghĩa, cách dùng, ví dụ có phát âm.
+  - **Bảng chữ cái tiếng Nhật**: hiragana, katakana, âm đục, chạm để nghe, luyện nhanh 10 chữ.
+  - Nghe và nói theo, nghe chép, tập viết tay (AI chấm chữ viết), điền từ, ghép câu, dịch hai chiều.
 - Lý thuyết: trắc nghiệm phủ mọi ý của bài, câu hỏi tự luận.
 
 **Ôn thi**
@@ -30,6 +34,7 @@ Toàn bộ ứng dụng nằm trong một file `index.html` (HTML, CSS, JavaScri
 
 **Khác**
 - Giao diện pastel, sáng/tối, dùng tốt trên điện thoại và màn hình lớn.
+- Điểm XP và chuỗi ngày học, mục tiêu 50 XP mỗi ngày.
 - Tiến độ đồng bộ theo tài khoản giữa các thiết bị.
 
 ## Cách chạy
