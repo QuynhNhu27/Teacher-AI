@@ -859,12 +859,29 @@ function detectLang(t){t=String(t||"");if(/[\u3040-\u30ff]/.test(t))return "ja-J
   if(/[ăâđêôơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỷỹỵ]/i.test(t))return "vi-VN";return "en-US"}
 function subLang(sub){if(!sub)return "en-US";const ls=S.sources[sub.sid];if(ls){const txt=ls.slice(0,600).join("\n");if(/[\u3040-\u30ff]/.test(txt))return "ja-JP";if(/[\uac00-\ud7af]/.test(txt))return "ko-KR";if(/[\u4e00-\u9fff]/.test(txt))return "zh-CN"}return "en-US"}
 const speakable=t=>{const l=detectLang(t);return l!=="vi-VN"&&String(t).trim().length>0};
+/* Giọng đọc chuẩn: tự chọn 1 giọng tốt nhất cho mỗi ngôn ngữ */
+const BEST={
+  en:[/Aria.*Natural|Jenny.*Natural|Ava.*Natural|Andrew.*Natural|Emma.*Natural/i,/Google US English/i,/Samantha|Ava \(|Allison/i,/Microsoft (Aria|Jenny|Zira)/i,/Google UK English Female/i],
+  ja:[/Nanami.*Natural|Keita.*Natural/i,/Google 日本語/i,/Kyoko|Otoya/i,/Microsoft (Nanami|Haruka|Ayumi)/i],
+  vi:[/HoaiMy.*Natural|NamMinh.*Natural/i,/HoaiMy|NamMinh/i,/Google Tiếng Việt|Google Vietnamese/i,/Linh/i],
+  ko:[/SunHi.*Natural|InJoon.*Natural/i,/Google 한국의/i,/Yuna/i],
+  zh:[/Xiaoxiao.*Natural|Yunxi.*Natural/i,/Google 普通话/i,/Tingting/i]};
+const PREF_LANG={en:"en-US",ja:"ja-JP",vi:"vi-VN",ko:"ko-KR",zh:"zh-CN"};
+const VCACHE={};
+function bestVoice(lang){const k=lang.slice(0,2).toLowerCase();if(VCACHE[k])return VCACHE[k];if(!("speechSynthesis" in window))return null;
+  const all=speechSynthesis.getVoices();if(!all.length)return null;const norm=v=>(v.lang||"").replace("_","-").toLowerCase();
+  let vs=all.filter(v=>norm(v).startsWith(k));const pref=(PREF_LANG[k]||lang).toLowerCase();
+  const exact=vs.filter(v=>norm(v)===pref);if(exact.length)vs=exact.concat(vs.filter(v=>!exact.includes(v)));
+  let pick=null;for(const re of BEST[k]||[]){pick=vs.find(v=>re.test(v.name));if(pick)break}
+  pick=pick||vs.find(v=>/natural|neural|online/i.test(v.name))||vs.find(v=>/google/i.test(v.name))||vs[0]||null;
+  if(pick)VCACHE[k]=pick;return pick}
+function langFor(text){const clean=String(text);const d=detectLang(clean);if(d!=="en-US")return d;const sl=subLang(curSub());return /^[\x00-\x7f’‘“”]*$/.test(clean)?"en-US":sl}
 function speak(text,rate){
   if(!("speechSynthesis" in window)){toast("Trình duyệt này không đọc được thành tiếng.","bad");return}
-  const clean=String(text).replace(/[(（][\u3040-\u30ffa-zA-Z\s.\-]*[)）]/g,"");let lang=detectLang(clean);if(lang==="en-US")lang=subLang(curSub())==="ja-JP"&&/^[\x00-\x7f]*$/.test(clean)?"en-US":(subLang(curSub())==="en-US"?"en-US":lang);
-  speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(clean);u.lang=lang;u.rate=rate||S.rate||0.85;
-  const vs=speechSynthesis.getVoices();const v=vs.find(v=>v.lang&&v.lang.replace("_","-").toLowerCase().startsWith(lang.slice(0,2).toLowerCase()));
-  if(v)u.voice=v;else if(vs.length)toast(`Máy chưa có giọng đọc ${lang}. Thêm giọng đọc trong cài đặt Ngôn ngữ của Windows/điện thoại.`);
+  const clean=String(text).replace(/[(（][぀-ヿa-zA-Z\s.\-]*[)）]/g,"").replace(/[_*#`]/g," ").trim();if(!clean)return;const lang=langFor(clean);
+  speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(clean);u.lang=PREF_LANG[lang.slice(0,2)]||lang;
+  const base=rate||S.rate||0.85;u.rate=lang.startsWith("en")?Math.max(0.8,base):base;u.pitch=1;
+  const v=bestVoice(lang);if(v)u.voice=v;else if(speechSynthesis.getVoices().length)toast(lang.startsWith("en")?"Máy chưa có giọng tiếng Anh chuẩn. Mở trang bằng Microsoft Edge để có giọng Aria/Jenny tự nhiên.":`Máy chưa có giọng đọc ${lang}. Thêm giọng đọc trong cài đặt Ngôn ngữ của Windows/điện thoại.`);
   speechSynthesis.speak(u)}
 function lnHtml(t,n,mono,doc,say){return `<div class="ln ${mono?"mono":""}" data-t="${esc(t)}" tabindex="0"><span class="no">${n||""}</span><span class="tx">${esc(t)}</span>${say&&speakable(t)?sayBtn(t):""}${doc?`<span class="doc">${esc(doc)}</span>`:""}</div>`}
 const VIET=/[ăâđêôơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỷỹỵ]/i;
@@ -1282,16 +1299,13 @@ async function genPrac(sub,bid){const b=arr(sub.outline.bai).find(x=>x.id===bid)
 const RD={list:[],i:0,playing:false,paused:false,key:null,tm:null};
 function splitSpeech(t){const parts=String(t).match(/[^.!?。！？;:]+[.!?。！？;:]*\s*/g)||[String(t)];const out=[];let cur="";
   for(const p of parts){if((cur+p).length>160&&cur){out.push(cur);cur=""}cur+=p}if(cur.trim())out.push(cur);return out}
-function viVoices(){if(!("speechSynthesis" in window))return [];const vs=speechSynthesis.getVoices().filter(v=>v.lang&&v.lang.replace("_","-").toLowerCase().startsWith("vi"));
-  const score=v=>(/natural|online|neural/i.test(v.name)?0:/google/i.test(v.name)?1:2);return vs.sort((a,b)=>score(a)-score(b))}
-function rdVoice(lang){if(lang.startsWith("vi")){const vs=viVoices();return vs.find(v=>v.name===S.rdVoice)||vs[0]||null}
-  const vs=speechSynthesis.getVoices().filter(v=>v.lang&&v.lang.replace("_","-").toLowerCase().startsWith(lang.slice(0,2)));return vs.find(v=>/natural|online|neural/i.test(v.name))||vs[0]||null}
+function viVoices(){const v=bestVoice("vi-VN");return v?[v]:[]}
+function rdVoice(lang){return bestVoice(lang)}
 function readerHtml(key,items,title){S.readerData[key]=items;const on=RD.key===key&&RD.playing;const vs=viVoices();
   return `<div class="reader ${on&&!RD.paused?"speaking":""}" data-rk="${esc(key)}"><div class="rbar"><span class="rava" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 8l9-4 9 4-9 4z" fill="currentColor"/><path d="M7 10.5V15c0 1.4 2.2 3 5 3s5-1.6 5-3v-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
     <div style="flex:1;min-width:140px"><b>${esc(title||"Nghe giảng")}</b><div class="note" data-rdstate>${on?(RD.paused?"Đang tạm dừng":"Đang đọc…"):`${items.filter(x=>!x.h).length} đoạn · chạm vào câu nào để nghe từ đó`}</div></div>
     <button class="btn" data-act="rd-play" data-rk="${esc(key)}">${on&&!RD.paused?"Tạm dừng":(on?"Đọc tiếp":"▶ Nghe giảng")}</button><button class="btn ghost" data-act="rd-stop" ${on?"":"hidden"}>Dừng</button></div>
     <div class="rbar"><select class="inp" id="rdRate" style="width:auto" aria-label="Tốc độ đọc">${[["0.85","Chậm, dễ nghe"],["0.95","Vừa"],["1.1","Nhanh"],["1.3","Rất nhanh"]].map(([v,n])=>`<option value="${v}" ${String(S.rdRate)===v?"selected":""}>${n}</option>`).join("")}</select>
-    ${vs.length>1?`<select class="inp" id="rdVoice" style="width:auto;max-width:100%" aria-label="Giọng đọc">${vs.map(v=>`<option value="${esc(v.name)}" ${(S.rdVoice?S.rdVoice===v.name:v===vs[0])?"selected":""}>${esc(v.name.replace(/Microsoft |Online |\(Natural\)|- Vietnamese \(Vietnam\)/g,"").trim())}</option>`).join("")}</select>`:""}
     ${key.startsWith("les:")?`<button class="btn ghost" data-act="regen-sum">Giảng lại dễ hiểu hơn</button>`:""}</div>
     <div class="rtext">${items.map((x,i)=>x.h?`<p class="rp h" data-pi="${i}">${esc(x.t)}</p>`:`<p class="rp" data-pi="${i}">${splitSpeech(x.t).map((c,ci)=>`<span class="rs" data-act="rd-from" data-rk="${esc(key)}" data-pi="${i}" data-ci="${ci}">${esc(c)}</span>`).join("")}</p>`).join("")}</div></div>`}
 function rdMark(){document.querySelectorAll(".rp.reading,.rs.on").forEach(e=>e.classList.remove("reading","on"));
@@ -1643,7 +1657,7 @@ renderMain();renderChat();
   const [db,user,ai]=await Promise.all([use("db"),use("user"),use("sample")]);
   S.ai=ai||null;
   if(S.ai){try{const l=await S.ai.limits();S.imgLim=l&&l.images?l.images:null}catch(e){}}
-  try{if("speechSynthesis" in window){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices()}}catch(e){}
+  try{if("speechSynthesis" in window){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{for(const k in VCACHE)delete VCACHE[k];speechSynthesis.getVoices()}}}catch(e){}
   let uid=null;try{uid=user?await user.id():null}catch(e){}
   const pill=$("#syncPill");
   if(db&&uid){S.store=makeDb(db,uid);pill.textContent="Đồng bộ theo tài khoản";pill.className="pill ok"}
