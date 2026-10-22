@@ -862,7 +862,7 @@ const speakable=t=>{const l=detectLang(t);return l!=="vi-VN"&&String(t).trim().l
 const BEST={
   en:[/Aria.*Natural|Jenny.*Natural|Ava.*Natural|Andrew.*Natural|Emma.*Natural/i,/Google US English/i,/Samantha|Ava \(|Allison/i,/Microsoft (Aria|Jenny|Zira)/i,/Google UK English Female/i],
   ja:[/Nanami.*Natural|Keita.*Natural/i,/Google 日本語/i,/Kyoko|Otoya/i,/Microsoft (Nanami|Haruka|Ayumi)/i],
-  vi:[/HoaiMy.*Natural|NamMinh.*Natural/i,/HoaiMy|NamMinh/i,/Google Tiếng Việt|Google Vietnamese/i,/Linh/i],
+  vi:[/Microsoft An\b/i,/NamMinh.*Natural/i,/NamMinh/i,/HoaiMy.*Natural/i,/HoaiMy/i,/Google Tiếng Việt|Google Vietnamese/i,/Linh/i],
   ko:[/SunHi.*Natural|InJoon.*Natural/i,/Google 한국의/i,/Yuna/i],
   zh:[/Xiaoxiao.*Natural|Yunxi.*Natural/i,/Google 普通话/i,/Tingting/i]};
 const PREF_LANG={en:"en-US",ja:"ja-JP",vi:"vi-VN",ko:"ko-KR",zh:"zh-CN"};
@@ -874,6 +874,20 @@ function bestVoice(lang){const k=lang.slice(0,2).toLowerCase();if(VCACHE[k])retu
   let pick=null;for(const re of BEST[k]||[]){pick=vs.find(v=>re.test(v.name));if(pick)break}
   pick=pick||vs.find(v=>/natural|neural|online/i.test(v.name))||vs.find(v=>/google/i.test(v.name))||vs[0]||null;
   if(pick)VCACHE[k]=pick;return pick}
+const VSYL=/^(ngh|ng|nh|ch|gh|gi|kh|ph|qu|th|tr|[bcdghklmnpqrstvx])?(oai|oay|uoi|uou|uya|uye|uyu|ieu|yeu|uay|oa|oe|oo|uy|ua|uo|ue|ui|ia|ie|ye|ai|ao|au|ay|eo|eu|iu|oi|uu|a|e|i|o|u|y)(ch|ng|nh|c|m|n|p|t)?$/i;
+function isEnWord(w){if(!w||!/[a-z]/i.test(w)||VIET.test(w))return false;if(/[_()\[\]{}.=<>+\/]/.test(w)||(/\d/.test(w)&&/[a-z]/i.test(w)))return true;
+  if(/^[A-Z]{2,}s?$/.test(w))return true;return w.split(/[-'’]/).some(p=>p&&/^[a-z]+$/i.test(p)&&!VSYL.test(p))}
+function viRuns(text){const toks=String(text).match(/\S+\s*/g)||[];const runs=[];let off=0;
+  for(const tk of toks){const core=tk.trim().replace(/^[^\p{L}\p{N}_(]+|[^\p{L}\p{N}_)]+$/gu,"");const hasL=/\p{L}/u.test(core);const lang=hasL&&isEnWord(core)?"en":"vi";const last=runs[runs.length-1];
+    if(last&&(last.lang===lang||!hasL))last.t+=tk;else runs.push({t:tk,lang,off});off+=tk.length}
+  for(let i=1;i<runs.length-1;i++){if(runs[i].lang==="vi"&&runs[i-1].lang==="en"&&runs[i+1].lang==="en"&&/^[\s\p{P}]*$/u.test(runs[i].t)){runs[i-1].t+=runs[i].t+runs[i+1].t;runs.splice(i,2);i--}}
+  return runs}
+function sayRuns(text,o){const runs=viRuns(String(text).replace(/[“”"«»*#`]/g,""));let k=0;
+  const next=()=>{if(!o.isCurrent())return;if(k>=runs.length){o.onDone&&o.onDone();return}const r=runs[k];const lang=r.lang==="en"?"en-US":(/[぀-ヿ]/.test(r.t)?"ja-JP":"vi-VN");
+    const u=new SpeechSynthesisUtterance(r.t.replace(/[_()]/g," "));u.lang=lang;const v=bestVoice(lang);if(v)u.voice=v;u.rate=(S.rdRate||1)*(lang==="en-US"?0.95:1);u.pitch=1;
+    u.onstart=()=>o.onPos&&o.onPos(r.off);u.onboundary=e=>o.onPos&&o.onPos(r.off+(e.charIndex||0));
+    u.onend=()=>{k++;next()};u.onerror=e=>{if(e.error==="interrupted"||e.error==="canceled")return;k++;next()};speechSynthesis.speak(u)};
+  next();return runs}
 function langFor(text){const clean=String(text);const d=detectLang(clean);if(d!=="en-US")return d;const sl=subLang(curSub());return /^[\x00-\x7f’‘“”]*$/.test(clean)?"en-US":sl}
 function speak(text,rate){
   if(!("speechSynthesis" in window)){toast("Trình duyệt này không đọc được thành tiếng.","bad");return}
@@ -1350,12 +1364,11 @@ function vpInner(key){const sc=S.readerData[key]||[];const act=VP.key===key;cons
       <button class="ibtn" data-act="vp-full" aria-label="Toàn màn hình">⛶</button>
       <div class="vp-chap">Đang học: ${esc(c.tieu_de)} · ${voiceNote()}</div></div>`}
 function voiceNote(){const v=bestVoice("vi-VN");if(!v)return "Đang tải giọng đọc…";const nm=v.name.replace(/Microsoft |Online |\(Natural\)|- Vietnamese \(Vietnam\)|Vietnamese/g,"").trim();
-  return /natural|neural|online/i.test(v.name)?`Giọng ${esc(nm)} (tự nhiên)`:`<span style="color:var(--bad)">Đang dùng giọng máy thường (${esc(nm)}). Mở trang bằng Microsoft Edge để có giọng HoaiMy tự nhiên.</span>`}
+  if(/Microsoft An\b/i.test(v.name))return "Giọng An · từ tiếng Anh đọc bằng giọng Anh chuẩn";
+  return /natural|neural|online/i.test(v.name)?`Giọng ${esc(nm)} · từ tiếng Anh đọc bằng giọng Anh chuẩn`:`<span style="color:var(--bad)">Đang dùng giọng máy thường (${esc(nm)}). Mở trang bằng Microsoft Edge để có giọng HoaiMy tự nhiên.</span>`}
 function videoHtml(key,scenes){S.readerData[key]=scenes;return `<div class="vp" id="vpBox" data-vk="${esc(key)}">${vpInner(key)}</div>`}
 function vpRender(){const box=$("#vpBox");if(box&&box.dataset.vk===VP.key)box.innerHTML=vpInner(VP.key)}
-function vpSpeak(text,done){const chunks=splitSpeech(text);let k=0;const one=()=>{if(!VP.playing)return;if(k>=chunks.length){done();return}
-  const u=new SpeechSynthesisUtterance(chunks[k].replace(/[“”"«»*#_`]/g,""));const lang=/[぀-ヿ一-鿿가-힯]/.test(chunks[k])&&!VIET.test(chunks[k])?detectLang(chunks[k]):"vi-VN";
-  u.lang=lang;const v=rdVoice(lang);if(v)u.voice=v;u.rate=S.rdRate||0.95;u.pitch=1;u.onend=()=>{k++;one()};u.onerror=e=>{if(e.error==="interrupted"||e.error==="canceled")return;k++;one()};speechSynthesis.speak(u)};one()}
+function vpSpeak(text,done){const tok={};VP.su2=tok;sayRuns(text,{isCurrent:()=>VP.playing&&VP.su2===tok,onDone:done})}
 function vpStep(){if(!VP.playing||VP.paused)return;const sc=VP.sc,c=sc[VP.si];if(!c){vpEnd();return}const lines=vpLines(c,VP.si);
   if(VP.li+1>=lines.length){if(c.loai==="hoi"&&VP.ans[VP.key+"#"+VP.si]==null){vpRender();return}
     if(VP.si+1>=sc.length){vpEnd();return}VP.si++;VP.li=-1;VP.prevShown=0;VP.mhShown=false;vpRender();VP.tm=setTimeout(vpStep,900);return}
@@ -1363,13 +1376,9 @@ function vpStep(){if(!VP.playing||VP.paused)return;const sc=VP.sc,c=sc[VP.si];if
   if(c.loai!=="hoi"&&vv&&!/google/i.test(vv.name)){const start=VP.li+1,segs=lines.slice(start),offs=[];let text="";
     segs.forEach(l=>{offs.push(text.length);let t=String(l).trim().replace(/[“”"«»*#_`]/g,"");if(!/[.!?…:;]$/.test(t))t+=".";text+=t+" "});
     VP.li=start;VP.said=lines[start];vpRender();
-    const u=new SpeechSynthesisUtterance(text);u.lang="vi-VN";u.voice=vv;u.rate=S.rdRate||1;u.pitch=1;VP.su=u;let gotB=false;
-    const setLi=ci=>{let k=0;for(let q=0;q<offs.length;q++)if(offs[q]<=ci)k=q;const li=start+k;if(li!==VP.li&&VP.su===u){VP.li=li;VP.said=lines[li];vpRender()}};
-    u.onboundary=e=>{gotB=true;setLi(e.charIndex||0)};
-    let el=0,last=Date.now();const est=setInterval(()=>{const now=Date.now();if(!VP.paused)el+=now-last;last=now;if(gotB||VP.su!==u){clearInterval(est);return}setLi(el/1000*13*(S.rdRate||1))},250);
-    u.onend=()=>{clearInterval(est);if(!VP.playing||VP.su!==u)return;VP.su=null;VP.li=lines.length-1;clearTimeout(VP.tm);VP.tm=setTimeout(vpStep,550)};
-    u.onerror=e=>{clearInterval(est);if(e.error==="interrupted"||e.error==="canceled"||VP.su!==u)return;VP.su=null;VP.li=lines.length-1;vpStep()};
-    speechSynthesis.speak(u);return}
+    const tok={};VP.su=tok;
+    const setLi=ci=>{let k=0;for(let q=0;q<offs.length;q++)if(offs[q]<=ci)k=q;const li=start+k;if(li!==VP.li&&VP.su===tok){VP.li=li;VP.said=lines[li];vpRender()}};
+    sayRuns(text,{isCurrent:()=>VP.playing&&VP.su===tok,onPos:setLi,onDone:()=>{if(!VP.playing||VP.su!==tok)return;VP.su=null;VP.li=lines.length-1;clearTimeout(VP.tm);VP.tm=setTimeout(vpStep,550)}});return}
   VP.li++;VP.said=lines[VP.li];vpRender();vpSpeak(lines[VP.li],()=>{clearTimeout(VP.tm);VP.tm=setTimeout(vpStep,/[.!?]\s*$/.test(lines[VP.li]||"")?260:160)})}
 function vpEnd(){VP.playing=false;VP.ended=true;VP.paused=false;vpRender()}
 function vpHalt(){VP.su=null;VP.playing=false;VP.paused=false;clearTimeout(VP.tm);try{speechSynthesis.cancel()}catch(e){}}
