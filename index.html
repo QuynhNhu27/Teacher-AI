@@ -670,14 +670,13 @@ Trả về JSON:
 ${sub.type==="ngoai_ngu"?`- "ngu_phap": MỌI mẫu ngữ pháp/mẫu câu trong đoạn, [{"mau":"cấu trúc, ví dụ N1 は N2 です","nghia":"nghĩa tiếng Việt","cach_dung":"dùng khi nào, lưu ý, điểm dễ sai","vi_du":[{"t":"câu ví dụ lấy từ giáo trình","doc":"cách đọc","g":"nghĩa"}]}]`:""}
 - "loi": lỗi hay gặp hoặc điều dễ nhầm, CHỈ khi giáo trình có nêu lưu ý, cảnh báo, quy tắc liên quan. Nếu không có thì để [].
 - "hoi": 3-6 câu hỏi tự kiểm tra, đáp án ngắn lấy từ giáo trình. [{"q","a"}].
-- "tom_tat": ${SUM_SPEC}
 ${EXT(sub.type)?`- ${MO_RONG_SPEC}`:""}
 - "phu": mã các mục đã giải nghĩa trong bài. "khong_co": mã các mục không tìm thấy trong đoạn này.
 Các mục cần phủ trong bài:
 ${items.length?items.map(m=>`${m.id}: ${m.ten} (dòng ${m.tu}-${m.den})`).join("\n"):"(không có danh sách, tự phủ hết đoạn)"}
 ${extra||""}
 Dạng JSON:
-{"muc_tieu":["..."],"cot_loi":["..."],"thuat_ngu":[{"tu":"...","doc":"","nghia":"..."}],"vi_du":[{"tieu_de":"...","dong":[{"n":1,"t":"...","doc":"","g":"..."}]}],"loi":["..."],"hoi":[{"q":"...","a":"..."}],${sub.type==="ngoai_ngu"?'"ngu_phap":[{"mau":"...","nghia":"...","cach_dung":"...","vi_du":[{"t":"...","doc":"...","g":"..."}]}],':""}"tom_tat":["..."]${EXT(sub.type)?',"mo_rong":[{"y":"...","vi_sao":"..."}]':""},"phu":["m1"],"khong_co":[]}
+{"muc_tieu":["..."],"cot_loi":["..."],"thuat_ngu":[{"tu":"...","doc":"","nghia":"..."}],"vi_du":[{"tieu_de":"...","dong":[{"n":1,"t":"...","doc":"","g":"..."}]}],"loi":["..."],"hoi":[{"q":"...","a":"..."}],${sub.type==="ngoai_ngu"?'"ngu_phap":[{"mau":"...","nghia":"...","cach_dung":"...","vi_du":[{"t":"...","doc":"...","g":"..."}]}],':""}${EXT(sub.type)?'"mo_rong":[{"y":"...","vi_sao":"..."}],':""}"phu":["m1"],"khong_co":[]}
 Chỉ trả về JSON.
 
 ĐOẠN GIÁO TRÌNH:
@@ -841,7 +840,7 @@ async function renderMain(){
   const sub=curSub();
   if(!sub){m.innerHTML=statusHtml()+`<div class="card empty"><h2>Chào bạn!</h2><p class="note">Thêm một môn học, dán hoặc tải giáo trình lên. AI sẽ chia bài và giải nghĩa từng dòng.</p><button class="btn" data-act="add-open">+ Thêm môn học</button></div>`;return}
   const t=T(sub.type),nb=arr(sub.outline&&sub.outline.bai).length,nr=Object.keys(sub.ready||{}).length,nd=Object.keys(sub.done||{}).length;
-  const tabs=[["bai","Bài học"],["luyen","Luyện"],["thi","Tóm tắt & thi thử"],["phu","Độ phủ"]];
+  const tabs=[["bai","Bài học"],["luyen","Luyện"],["thi","Thi thử"],["phu","Độ phủ"]];
   let head=`<div class="shead"><div><div class="row" style="margin-bottom:6px"><span class="chip t-${t.c}">${t.n}</span>${sub.sample?`<span class="chip t-butter">Mẫu, không lưu</span>`:""}</div>
     <h1>${esc(sub.name)}</h1><div class="meta">${nb} bài · ${nr} đã giải nghĩa · ${nd} đã học</div></div>
     <div class="row">${nb&&nr<nb?`<button class="btn soft" data-act="gen-all">Giải nghĩa tất cả bài</button>`:""}
@@ -914,9 +913,6 @@ async function pBai(sub){
   const ex=arr(L.vi_du).map(v=>`<div class="exttl">${esc(v.tieu_de||"Ví dụ")}</div><div class="ex">${arr(v.dong).map(d=>`<div class="ex-row">${lnHtml(d.t,d.n,mono,d.doc,lang)}<div class="gl">${esc(d.g)}</div></div>`).join("")}</div>`).join("");
   const qa=arr(L.hoi).map(q=>`<details class="qa"><summary>${esc(q.q)}</summary><div class="ans">${esc(q.a)}</div></details>`).join("");
   const missHtml=missIds.length?`<div class="miss">AI báo chưa phủ: ${missIds.map(id=>{const m=items.find(x=>x.id===id);return esc(m?m.ten:id)}).join(", ")}. <button class="btn danger" data-act="regen" style="margin-left:6px;padding:4px 10px">Bổ sung</button></div>`:"";
-  const sumItems=arr(L.tom_tat).map(t=>({t}));
-  const sumHtml=sumItems.length?`<section class="sec">${readerHtml(`les:${sub.sid}:${b.id}`,sumItems,"Tóm tắt cả bài · nghe giảng")}</section>`:
-    `<section class="sec"><div class="row" style="justify-content:space-between"><div><span class="chip t-sky">Tóm tắt & nghe giảng</span><p class="note" style="margin:6px 0 0">Tóm tắt toàn bộ bài thành lời giảng, có người đọc cho bạn nghe.${EXT(sub.type)?" Kèm phần mở rộng hay thi.":""}</p></div><button class="btn" data-act="gen-sum" ${S.ai&&!S.busy?"":"disabled"}>Tạo tóm tắt</button></div></section>`;
   const moRong=arr(L.mo_rong).length?sec("sky","Mở rộng ngoài giáo trình",`<p class="note" style="margin:0 0 8px">Kiến thức liên quan hay gặp khi thi, do AI bổ sung. Nên đối chiếu với giảng viên.</p><ul>${arr(L.mo_rong).map(x=>`<li>${esc(x.y)}${x.vi_sao?` <span class="note">(${esc(x.vi_sao)})</span>`:""}</li>`).join("")}</ul>`):"";
   const vidHtml=arr(L.video).length?`<section class="sec" style="padding:12px"><div class="row" style="justify-content:space-between;margin:0 4px 10px"><span class="chip t-peach">Video bài giảng</span><button class="btn ghost" data-act="gen-video" ${S.ai&&!S.busy?"":"disabled"} style="padding:5px 10px;font-size:.8rem">Soạn lại bài giảng</button></div>${videoHtml(`vid:${sub.sid}:${b.id}`,L.video)}</section>`:
     `<section class="sec"><div class="row" style="justify-content:space-between"><div style="flex:1;min-width:220px"><span class="chip t-peach">Video bài giảng</span><p class="note" style="margin:6px 0 0">Thầy cô AI giảng trên bảng như video YouTube: mở đầu gợi tò mò, giảng từng ý kèm ví dụ, viết bảng từng dòng, có phụ đề, câu hỏi nhanh giữa bài và tổng kết cuối bài.</p></div><button class="btn" data-act="gen-video" ${S.ai&&!S.busy?"":"disabled"}>Tạo video bài giảng</button></div></section>`;
@@ -925,7 +921,6 @@ async function pBai(sub){
   return `<div class="stack">${hd}${missHtml}${cta}
     ${sec("sky","Mục tiêu",list(L.muc_tieu))}
     ${vidHtml}
-    ${sumHtml}
     ${sec("lilac","Cốt lõi",list(L.cot_loi))}
     ${sec("butter",lang?"Từ vựng":"Thuật ngữ",terms)}
     ${gp}
@@ -1173,7 +1168,7 @@ async function pThi(sub){
   const Ls=[];for(const b of bs)Ls.push(await getLesson(sub.sid,b.id));
   for(const b of bs){const k=sub.sid+"/"+b.id;if(!(k in S.prac)){const d=await get(`prac_${sub.sid}_${b.id}`);S.prac[k]=d?arr(d.items):null}}
   const mcqs=[];bs.forEach(b=>arr(S.prac[sub.sid+"/"+b.id]).forEach(it=>{if(it.loai==="trac_nghiem"&&arr(it.lua_chon).length>1)mcqs.push({b,it})}));
-  const sumN=Ls.filter(L=>L&&arr(L.tom_tat).length).length,noPrac=bs.filter(b=>!S.prac[sub.sid+"/"+b.id]).length;
+  const sumN=Ls.filter(L=>L&&arr(L.video).length).length,noPrac=bs.filter(b=>!S.prac[sub.sid+"/"+b.id]).length;
   const items=[];bs.forEach((b,i)=>{const L=Ls[i];if(L&&arr(L.tom_tat).length){items.push({t:`Bài ${i+1}. ${b.ten}`,h:true});arr(L.tom_tat).forEach(t=>items.push({t}));
     if(arr(L.mo_rong).length){items.push({t:"Mở rộng",h:true});L.mo_rong.forEach(x=>items.push({t:x.y}))}}});
   const E=S.exam&&S.exam.sid===sub.sid?S.exam:null;
@@ -1190,11 +1185,11 @@ async function pThi(sub){
     <button class="btn" data-act="ex-start" ${mcqs.length?"":"disabled"}>Thi thử ${Math.min(30,mcqs.length)||""} câu</button></div></section>`;
   return `<div class="stack">
     <div class="card"><div class="row" style="justify-content:space-between;align-items:flex-end;gap:16px">
-      <div><div class="label">Bài đã có tóm tắt</div><div class="big">${sumN}/${bs.length}</div></div>
+      <div><div class="label">Bài đã có video giảng</div><div class="big">${sumN}/${bs.length}</div></div>
       <div><div class="label">Bài đã có câu hỏi</div><div class="big">${bs.length-noPrac}/${bs.length}</div></div>
-      <div class="row">${sumN<bs.length?`<button class="btn soft" data-act="thi-gen-sum" ${S.ai&&!S.busy?"":"disabled"}>Tóm tắt các bài còn thiếu</button>`:""}${noPrac?`<button class="btn soft" data-act="thi-gen-q" ${S.ai&&!S.busy?"":"disabled"}>Tạo câu hỏi cho bài còn thiếu</button>`:""}</div></div></div>
+      <div class="row">${sumN<bs.length?`<button class="btn soft" data-act="thi-gen-sum" ${S.ai&&!S.busy?"":"disabled"}>Tạo video cho bài còn thiếu</button>`:""}${noPrac?`<button class="btn soft" data-act="thi-gen-q" ${S.ai&&!S.busy?"":"disabled"}>Tạo câu hỏi cho bài còn thiếu</button>`:""}</div></div></div>
     ${exam}
-    <section class="sec">${items.length?readerHtml(`sub:${sub.sid}`,items,"Tóm tắt toàn môn · nghe giảng"):`<p class="note" style="margin:0">Chưa có tóm tắt. Bấm “Tóm tắt các bài còn thiếu” để AI tóm tắt toàn bộ giáo trình thành lời giảng có người đọc.</p>`}</section></div>`}
+    <section class="sec"><div class="sh"><span class="chip t-peach">Video bài giảng theo bài</span></div><div class="stack" style="gap:6px">${bs.map((b,i)=>`<div class="row" style="justify-content:space-between;padding:6px 0;border-top:${i?"1px solid var(--line)":"0"}"><span>${i+1}. ${esc(b.ten)}</span>${Ls[i]&&arr(Ls[i].video).length?`<button class="btn soft" data-act="watch" data-bid="${b.id}" style="padding:5px 10px;font-size:.8rem">▶ Xem video · ${Ls[i].video.length} cảnh</button>`:`<span class="note">Chưa có video</span>`}</div>`).join("")}</div></section></div>`}
 
 /* ---------- Ôn tập ---------- */
 async function allCards(){const out=[];const real=S.subjects.filter(s=>!s.sample);const use=real.length?real:S.subjects;
@@ -1489,10 +1484,11 @@ const ACT={
   "kana-quiz":()=>{qsStart(buildKanaSession(S.kanaSet),"kana:"+S.kanaSet,"Bảng chữ cái");renderMain()},
   "gen-sum":async()=>{const sub=curSub();if(S.busy)return;setBusy({text:"AI đang tóm tắt bài thành lời giảng…"});try{await genSummary(sub,S.bid)}catch(e){toast(errMsg(e),"bad")}S.busy=null;renderMain()},
   "thi-gen-sum":async()=>{const sub=curSub();if(S.busy)return;S.stopAll=false;const bs=sortedBai(sub);
-    for(let i=0;i<bs.length;i++){if(S.stopAll)break;const b=bs[i];const L=await getLesson(sub.sid,b.id);if(L&&arr(L.tom_tat).length)continue;
-      S.busy={text:`Đang tóm tắt bài ${i+1}/${bs.length}: “${b.ten}”…`,stoppable:true};renderMain();
-      try{if(!L)await genLesson(sub,b.id);else await genSummary(sub,b.id)}catch(e){toast(errMsg(e),"bad");if(e&&["not_granted","rate_limited","sampling_disabled"].includes(e.code))break}}
+    for(let i=0;i<bs.length;i++){if(S.stopAll)break;const b=bs[i];let L=await getLesson(sub.sid,b.id);if(L&&arr(L.video).length)continue;
+      S.busy={text:`Đang soạn video bài giảng ${i+1}/${bs.length}: “${b.ten}”…`,stoppable:true};renderMain();
+      try{if(!L)await genLesson(sub,b.id);await genVideo(sub,b.id)}catch(e){toast(errMsg(e),"bad");if(e&&["not_granted","rate_limited","sampling_disabled"].includes(e.code))break}}
     S.busy=null;renderMain()},
+  "watch":a=>{vpHalt();VP.key=null;S.bid=a.dataset.bid;S.tab="bai";renderMain().then(()=>{const v=$("#vpBox");if(v)v.scrollIntoView({behavior:"smooth",block:"start"})})},
   "thi-gen-q":async()=>{const sub=curSub();if(S.busy)return;S.stopAll=false;const bs=sortedBai(sub).filter(b=>!S.prac[sub.sid+"/"+b.id]);
     for(let i=0;i<bs.length;i++){if(S.stopAll)break;S.busy={text:`Đang soạn câu hỏi ${i+1}/${bs.length}: “${bs[i].ten}”…`,stoppable:true};renderMain();
       try{await genPrac(sub,bs[i].id)}catch(e){toast(errMsg(e),"bad");if(e&&["not_granted","rate_limited","sampling_disabled"].includes(e.code))break}}

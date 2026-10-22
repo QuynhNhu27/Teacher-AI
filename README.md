@@ -14,7 +14,6 @@ Toàn bộ ứng dụng nằm trong một file `index.html` (HTML, CSS, JavaScri
 **Bài học**
 - AI chia giáo trình thành các bài. Mỗi bài có: mục tiêu, cốt lõi, thuật ngữ, ví dụ giải nghĩa từng dòng (ngoại ngữ có cách đọc), lỗi hay gặp, câu hỏi tự kiểm tra, xem đoạn gốc.
 - **Video bài giảng** kiểu YouTube: thầy cô AI giảng trên bảng đen, mở đầu gợi tò mò, giảng từng ý kèm ví dụ, viết bảng từng dòng theo lời giảng, có phụ đề, câu hỏi nhanh giữa bài, tổng kết và mẹo nhớ cuối bài.
-- Tóm tắt toàn bộ bài thành lời giảng, có người đọc (giọng tiếng Việt), chạm vào đoạn nào để nghe từ đó.
 - Môn lý thuyết (triết, sử…): thêm phần “Mở rộng ngoài giáo trình” với kiến thức liên quan hay gặp khi thi, được đánh dấu rõ.
 - Chọn bất kỳ dòng nào (tô vàng) để hỏi AI. AI chỉ trả lời dựa trên giáo trình.
 
@@ -28,7 +27,7 @@ Toàn bộ ứng dụng nằm trong một file `index.html` (HTML, CSS, JavaScri
 - Lý thuyết: trắc nghiệm phủ mọi ý của bài, câu hỏi tự luận.
 
 **Ôn thi**
-- Tóm tắt toàn môn có người đọc.
+- Danh sách video bài giảng của cả môn, tạo nhanh video cho các bài còn thiếu.
 - Thi thử trắc nghiệm: đề ngẫu nhiên tối đa 30 câu, chấm điểm và giải thích từng câu.
 - Thẻ ghi nhớ Leitner (1-3-7-14-30 ngày), mỗi phiên tối đa 10 thẻ, thẻ sai làm lại.
 - Tab “Độ phủ” kiểm tra đã phủ hết các mục của giáo trình chưa.
