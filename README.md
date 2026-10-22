@@ -14,6 +14,8 @@ Toàn bộ ứng dụng nằm trong một file `index.html` (HTML, CSS, JavaScri
 **Bài học**
 - AI chia giáo trình thành các bài. Mỗi bài có: mục tiêu, cốt lõi, thuật ngữ, ví dụ giải nghĩa từng dòng (ngoại ngữ có cách đọc), lỗi hay gặp, câu hỏi tự kiểm tra, xem đoạn gốc.
 - **Video bài giảng** kiểu YouTube: thầy cô AI giảng trên bảng đen, mở đầu gợi tò mò, giảng từng ý kèm ví dụ, viết bảng từng dòng theo lời giảng, có phụ đề, câu hỏi nhanh giữa bài, tổng kết và mẹo nhớ cuối bài.
+  - Mỗi bài có **sơ đồ tư duy** tổng quan và tổng kết; mỗi ý giảng đều kèm **ví dụ** cụ thể.
+  - Từ và câu ngoại ngữ trong video được đọc bằng **giọng bản xứ** (Anh, Nhật, Hàn, Trung), phần giảng bằng giọng Việt.
 - Môn lý thuyết (triết, sử…): thêm phần “Mở rộng ngoài giáo trình” với kiến thức liên quan hay gặp khi thi, được đánh dấu rõ.
 - Chọn bất kỳ dòng nào (tô vàng) để hỏi AI. AI chỉ trả lời dựa trên giáo trình.
 

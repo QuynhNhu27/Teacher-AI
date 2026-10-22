@@ -399,6 +399,30 @@ textarea.code-ed{font-family:var(--f-mono);font-size:.87rem;min-height:110px;whi
 .vp-tbl td{border-bottom:1px dashed rgba(255,255,255,.25);padding:5px 6px;vertical-align:top}
 .vp-tbl tr:first-child td{color:var(--chalk-y);font-weight:700}
 .vp-quote{font-family:var(--f-hand);font-size:1.15rem;color:var(--chalk-p)}
+.fx{color:var(--chalk-b);font-weight:600}
+.vp-sub .fx{color:#BFE3FF}
+.vp-vd{border-left:4px solid var(--chalk-p);background:rgba(255,255,255,.06);border-radius:8px;padding:8px 12px;font-family:var(--f-hand);font-size:1.08rem}
+.vp-vd b{color:var(--chalk-p)}
+.vp-vd.in{animation:chalk .6s ease both}
+.mm{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.8fr) minmax(0,1fr);gap:10px 26px;align-items:center;font-family:var(--f-hand);flex:1;align-content:center}
+.mm-c{grid-column:2;align-self:center;border:3px solid var(--chalk-y);border-radius:50%;padding:18px 12px;text-align:center;font-weight:600;font-size:1.15rem;color:var(--chalk-y);min-height:90px;display:grid;place-items:center}
+.mm-b{position:relative;border:2px solid var(--chalk-b);border-radius:14px;padding:7px 11px;font-size:.98rem;line-height:1.35}
+.mm-b b{display:block;font-size:1.05rem}
+.mm-b ul{margin:4px 0 0;padding-left:1.1em;font-size:.9rem;opacity:.92}
+.mm-b.c1{border-color:var(--chalk-p)}.mm-b.c1 b{color:var(--chalk-p)}
+.mm-b.c2{border-color:var(--chalk-g)}.mm-b.c2 b{color:var(--chalk-g)}
+.mm-b.c3{border-color:var(--chalk-y)}.mm-b.c3 b{color:var(--chalk-y)}
+.mm-b.c0 b{color:var(--chalk-b)}
+.mm-b.r::before,.mm-b.l::after{content:"";position:absolute;top:50%;width:26px;border-top:2px dashed rgba(255,255,255,.45)}
+.mm-b.r::before{left:-28px}.mm-b.l::after{right:-28px}
+.mm-b.off{visibility:hidden}
+.mm-b.in{animation:chalk .55s ease both}
+.mmbox{border-style:solid;border-color:rgba(255,255,255,.18);padding:10px}
+.mmbox .mm{grid-template-columns:1fr;gap:8px}
+.mmbox .mm-c{grid-column:1!important;grid-row:auto!important;border-radius:999px;min-height:0;padding:8px 12px;font-size:1rem}
+.mmbox .mm-b{grid-column:1!important;grid-row:auto!important;font-size:.9rem}
+.mmbox .mm-b::before,.mmbox .mm-b::after{display:none}
+@media (max-width:760px){.mm{grid-template-columns:1fr;gap:8px}.mm-c{grid-column:1!important;grid-row:auto!important;border-radius:999px;min-height:0;padding:8px 12px}.mm-b{grid-column:1!important;grid-row:auto!important}.mm-b::before,.mm-b::after{display:none}}
 .vp-sub{position:absolute;left:8px;right:8px;bottom:8px;padding:10px 70px 12px 16px;background:rgba(0,0,0,.42);color:#fff;font-size:1rem;line-height:1.45;min-height:44px}
 .vp-teacher{position:absolute;right:18px;bottom:16px;width:42px;height:42px;border-radius:50%;background:var(--chalk-y);color:#22392F;display:grid;place-items:center;z-index:2}
 .vp-stage.talking .vp-teacher::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--chalk-y);animation:pulse 1.1s ease-out infinite}
@@ -420,7 +444,7 @@ textarea.code-ed{font-family:var(--f-mono);font-size:.87rem;min-height:110px;whi
 .vp-tl button.q{background:var(--peach-ink)}
 .vp-tl button.q.cur,.vp-tl button.q.done{background:var(--peach-ink)}
 .vp-chap{font-size:.85rem;color:var(--muted);min-width:0;flex-basis:100%}
-@media (max-width:760px){.vp-stage{aspect-ratio:auto;min-height:380px}.vp-body{grid-template-columns:1fr}.vp-title{font-size:1.3rem}.vp-board{font-size:1.05rem}.vp-opts{grid-template-columns:1fr}.vp-in{padding:14px 16px 76px}}
+@media (max-width:760px){.vp-stage{aspect-ratio:auto;min-height:0}.vp-in{position:relative;inset:auto;margin:8px 8px 0;padding:14px 14px 12px!important;overflow:visible}.vp-sub{position:relative;left:auto;right:auto;bottom:auto;margin:6px 8px 8px;border-radius:8px;padding:10px 12px}.vp-teacher{bottom:auto;top:16px;right:16px;width:34px;height:34px}.vp-start,.vp-end{min-height:260px}.vp-body{grid-template-columns:1fr}.vp-title{font-size:1.3rem}.vp-board{font-size:1.05rem}.vp-opts{grid-template-columns:1fr}.vp-in{padding:14px 16px 76px}}
 @media (max-width:1180px){
   .app{grid-template-columns:240px minmax(0,1fr)}
 }
@@ -548,10 +572,11 @@ const MAU_L0={
   loi:[], hoi:[{q:"Biến dùng để làm gì?",a:"Để lưu một giá trị."},{q:"Có cần khai báo kiểu cho biến trong Python không?",a:"Không cần khai báo kiểu trước."},{q:"Hàm nào cho biết kiểu dữ liệu của một giá trị?",a:"type()"}],
   video:[
    {loai:"mo_dau",tieu_de:"Biến là cái hộp có dán nhãn",bang:["Biến = hộp chứa giá trị","Tên biến = nhãn dán trên hộp"],minh_hoa:{kieu:"vi_du",noi_dung:"Hộp tên “tuoi” đang chứa số 20"},loi:["Chào các bạn! Các bạn có bao giờ dán nhãn lên hộp đồ để dễ tìm không?","Trong lập trình, biến chính là một cái hộp như vậy.","Hộp thì chứa đồ, còn biến thì chứa giá trị.","Tên biến là cái nhãn để mình gọi đúng hộp cần dùng.","Hôm nay mình học cách tạo biến và xem kiểu dữ liệu của nó nhé."]},
-   {loai:"giang",tieu_de:"Tạo biến trong Python",bang:["tên_biến = giá_trị","Không cần khai báo kiểu trước"],minh_hoa:{kieu:"code",noi_dung:'ten = "An"\ntuoi = 20'},loi:["Để tạo biến, mình viết tên biến, dấu bằng, rồi giá trị.","Ví dụ ten bằng An, tức là cất chữ An vào hộp tên ten.","tuoi bằng 20 là cất số 20 vào hộp tuoi.","Chỗ này quan trọng nè: Python không bắt mình khai báo kiểu trước.","Nó tự nhìn giá trị và hiểu đó là chữ hay số."]},
+   {loai:"ban_do",tieu_de:"Bản đồ bài học hôm nay",bang:[],tu_duy:{goc:"Biến trong {{Python}}",nhanh:[{ten:"Biến là gì",y:["Hộp chứa giá trị","Có tên để gọi"]},{ten:"Cách tạo",y:["tên = giá trị","Không khai báo kiểu"]},{ten:"In ra",y:["{{print()}}"]},{ten:"Xem kiểu",y:["{{type()}}"]}]},loi:["Trước khi vào chi tiết, mình xem bức tranh tổng thể nhé.","Ở giữa là chủ đề chính, biến trong {{Python}}.","Nhánh thứ nhất, biến là gì.","Nhánh thứ hai, cách tạo biến.","Nhánh thứ ba, in giá trị ra màn hình bằng {{print}}.","Nhánh cuối, xem kiểu dữ liệu bằng {{type}}."]},
+   {loai:"giang",tieu_de:"Tạo biến trong Python",vd:"Giống như ghi tên lên hộp bút rồi bỏ bút vào: {{ten = \"An\"}}",bang:["tên_biến = giá_trị","Không cần khai báo kiểu trước"],minh_hoa:{kieu:"code",noi_dung:'ten = "An"\ntuoi = 20'},loi:["Để tạo biến, mình viết tên biến, dấu bằng, rồi giá trị.","Ví dụ ten bằng An, tức là cất chữ An vào hộp tên ten.","tuoi bằng 20 là cất số 20 vào hộp tuoi.","Chỗ này quan trọng nè: Python không bắt mình khai báo kiểu trước.","Nó tự nhìn giá trị và hiểu đó là chữ hay số."]},
    {loai:"hoi",tieu_de:"Kiểm tra nhanh",cau_hoi:"Trong Python, muốn tạo biến tuoi bằng 20 thì viết thế nào?",lua_chon:["tuoi = 20","int tuoi = 20","20 = tuoi"],dap_an:0,giai_thich:"Viết tên biến, dấu bằng, rồi giá trị. Python không cần ghi kiểu int phía trước.",bang:[],loi:[]},
-   {loai:"vi_du",tieu_de:"In giá trị và xem kiểu",bang:["print() in ra màn hình","type() cho biết kiểu dữ liệu"],minh_hoa:{kieu:"so_do",noi_dung:"tuoi → type(tuoi) → print(...) → màn hình"},loi:["Giờ mình in giá trị ra bằng lệnh print.","print ten, tuoi sẽ in ra An và 20.","Còn muốn biết hộp đang chứa loại gì, mình dùng hàm type.","Viết print type tuoi, máy sẽ cho biết kiểu của biến tuoi.","Nhiều bạn hay nhầm type với print. Nhớ nhé: type là hỏi kiểu, print là in ra."]},
-   {loai:"tong_ket",tieu_de:"Tóm lại",bang:["Biến = hộp có nhãn","tên = giá trị","type() hỏi kiểu, print() in ra"],loi:["Tóm lại, các bạn nhớ giúp mình ba ý.","Một, biến là hộp có nhãn để chứa giá trị.","Hai, tạo biến bằng cách viết tên, dấu bằng, giá trị.","Ba, type để hỏi kiểu, print để in ra.","Về nhà các bạn thử tạo ba biến về bản thân rồi in ra nhé!"]}],
+   {loai:"vi_du",tieu_de:"In giá trị và xem kiểu",vd:"{{print(type(20))}} cho biết 20 là số nguyên",bang:["print() in ra màn hình","type() cho biết kiểu dữ liệu"],minh_hoa:{kieu:"so_do",noi_dung:"tuoi → type(tuoi) → print(...) → màn hình"},loi:["Giờ mình in giá trị ra bằng lệnh print.","print ten, tuoi sẽ in ra An và 20.","Còn muốn biết hộp đang chứa loại gì, mình dùng hàm type.","Viết print type tuoi, máy sẽ cho biết kiểu của biến tuoi.","Nhiều bạn hay nhầm type với print. Nhớ nhé: type là hỏi kiểu, print là in ra."]},
+   {loai:"tong_ket",tieu_de:"Tóm lại",bang:["Biến = hộp có nhãn","tên = giá trị","type() hỏi kiểu, print() in ra"],tu_duy:{goc:"Ghi nhớ",nhanh:[{ten:"Biến",y:["Hộp có nhãn"]},{ten:"Tạo",y:["tên = giá trị"]},{ten:"{{print}}",y:["In ra"]},{ten:"{{type}}",y:["Hỏi kiểu"]}]},loi:["Tóm lại, các bạn nhớ giúp mình ba ý.","Một, biến là hộp có nhãn để chứa giá trị.","Hai, tạo biến bằng cách viết tên, dấu bằng, giá trị.","Ba, type để hỏi kiểu, print để in ra.","Về nhà các bạn thử tạo ba biến về bản thân rồi in ra nhé!"]}],
   tom_tat:["Bài này nói về biến. Biến là một cái tên dùng để lưu một giá trị. Trong Python, ta không cần khai báo kiểu trước khi tạo biến.","Ví dụ, ten bằng An là lưu một chữ, tuoi bằng 20 là lưu một số. Lệnh print in giá trị của hai biến này ra màn hình.","Hàm type cho biết kiểu dữ liệu của một giá trị. Lệnh print type tuoi sẽ lấy kiểu của biến tuoi rồi in ra."],
   phu:["m1","m2"], khong_co:[]
 };
@@ -629,9 +654,17 @@ Cách giảng:
 - Phủ TOÀN BỘ nội dung đoạn giáo trình, không bỏ ý. Kiến thức lấy từ giáo trình; ví dụ đời thường để so sánh thì được tự đặt${EXT(sub.type)?", phần liên hệ được dùng kiến thức phổ biến chắc chắn đúng":""}.
 - "loi" (lời giảng): xưng "mình", gọi "các bạn", câu ngắn dưới 20 từ, tự nhiên như đang nói, không ký hiệu markdown. Mỗi cảnh 3-7 câu.
 - "bang": những gì viết lên bảng, 2-5 dòng thật ngắn (từ khóa, công thức, định nghĩa rút gọn), hiện dần theo lời giảng.
-- "minh_hoa" (khi cần): {"kieu":"code","noi_dung":"..."} hoặc {"kieu":"so_do","noi_dung":"Bước 1 → Bước 2 → Bước 3"} hoặc {"kieu":"bang","noi_dung":"Cột A | Cột B\\nx | y"} hoặc {"kieu":"vi_du","noi_dung":"ví dụ cụ thể"}.
-Tổng 8-16 cảnh.
-Chỉ trả về JSON: {"canh":[{"loai":"mo_dau|giang|vi_du|hoi|tong_ket","tieu_de":"...","bang":["..."],"minh_hoa":{"kieu":"...","noi_dung":"..."},"loi":["..."],"cau_hoi":"chỉ với cảnh hoi","lua_chon":["...","...","..."],"dap_an":0,"giai_thich":"..."}]}
+- "minh_hoa" (khi cần): {"kieu":"code","noi_dung":"..."} hoặc {"kieu":"so_do","noi_dung":"Bước 1 → Bước 2 → Bước 3"} hoặc {"kieu":"bang","noi_dung":"Cột A | Cột B\\nx | y"}.
+- BẮT BUỘC có ví dụ: mọi cảnh "giang" và "vi_du" phải có "vd" là một ví dụ cụ thể, ngắn, dễ nhớ (đời thường hoặc lấy từ giáo trình), và lời giảng phải nói về ví dụ đó.
+- BẮT BUỘC có sơ đồ tư duy:
+  * Cảnh thứ hai là "ban_do": sơ đồ tư duy toàn bài, lời giảng đi qua từng nhánh để các bạn thấy bức tranh tổng thể trước khi học chi tiết.
+  * Cảnh "giang" nào có nhiều phần, nhiều loại, các bước hoặc cần so sánh thì thêm "tu_duy" nhỏ 2-4 nhánh.
+  * Cảnh "tong_ket" có "tu_duy" tổng kết.
+  * Dạng: {"goc":"chủ đề ngắn","nhanh":[{"ten":"tên nhánh ngắn","y":["ý con thật ngắn","..."]}]}, mỗi nhánh tối đa 3 ý con, chữ thật ngắn.
+- ĐÁNH DẤU NGOẠI NGỮ: mọi từ, cụm từ, câu tiếng nước ngoài hoặc tên lệnh code trong "loi", "bang", "vd" phải đặt trong {{ }}, ví dụ: Câu {{I am a student}} nghĩa là tôi là sinh viên. Lệnh {{print}} dùng để in. Phần tiếng Việt thì không đặt.${sub.type==="ngoai_ngu"?`
+- Môn ngoại ngữ: giảng bằng tiếng Việt nhưng mỗi câu mẫu ngoại ngữ phải nằm trọn trong {{ }} để giọng bản xứ đọc. Cảnh "vi_du" đọc câu mẫu hai lần (một lần thường, một lần sau khi phân tích), nhắc cách phát âm, trọng âm, nối âm.`:""}
+Tổng 9-16 cảnh.
+Chỉ trả về JSON: {"canh":[{"loai":"mo_dau|ban_do|giang|vi_du|hoi|tong_ket","tieu_de":"...","bang":["..."],"vd":"ví dụ cụ thể","tu_duy":{"goc":"...","nhanh":[{"ten":"...","y":["..."]}]},"minh_hoa":{"kieu":"...","noi_dung":"..."},"loi":["..."],"cau_hoi":"chỉ với cảnh hoi","lua_chon":["...","...","..."],"dap_an":0,"giai_thich":"..."}]}
 
 ĐOẠN GIÁO TRÌNH:
 ${numbered}`}
@@ -882,11 +915,17 @@ function viRuns(text){const toks=String(text).match(/\S+\s*/g)||[];const runs=[]
     if(last&&(last.lang===lang||!hasL))last.t+=tk;else runs.push({t:tk,lang,off});off+=tk.length}
   for(let i=1;i<runs.length-1;i++){if(runs[i].lang==="vi"&&runs[i-1].lang==="en"&&runs[i+1].lang==="en"&&/^[\s\p{P}]*$/u.test(runs[i].t)){runs[i-1].t+=runs[i].t+runs[i+1].t;runs.splice(i,2);i--}}
   return runs}
-function sayRuns(text,o){const clean=String(text).replace(/[“”"«»*#`]/g,"");const runs=S.mixVoice?viRuns(clean):[{t:clean,lang:"vi",off:0}];
+function sayRuns(text,o){const src=String(text).replace(/[“”"«»*#`]/g,"");const sb=curSub();const isLang=!!(sb&&sb.type==="ngoai_ngu");const runs=[];
+  const plain=(t,off)=>{if(!t)return;if(!/[\p{L}\p{N}]/u.test(t)){if(runs.length)runs[runs.length-1].t+=t;return}(S.mixVoice?viRuns(t):[{t,lang:"vi",off:0}]).forEach(r=>runs.push({t:r.t,lang:r.lang,off:off+r.off}))};
+  const re=/\{\{(.+?)\}\}/g;let last=0,m;
+  while((m=re.exec(src))){plain(src.slice(last,m.index),last);const f=m[1];const fl=/[぀-ヿ]/.test(f)?"ja":/[가-힯]/.test(f)?"ko":/[一-鿿]/.test(f)?(isLang&&subLang(sb)==="ja-JP"?"ja":"zh"):(VIET.test(f)?"vi":"en");
+    runs.push({t:f+(/[.!?。]$/.test(f)?" ":", "),lang:(isLang||S.mixVoice||fl!=="en")?fl:"vi",off:m.index,fx:true});last=m.index+m[0].length}
+  plain(src.slice(last),last);
   if(!runs.length){o.onDone&&o.onDone();return runs}
-  const us=runs.map((r,k)=>{const lang=r.lang==="en"?"en-US":(/[぀-ヿ]/.test(r.t)&&!VIET.test(r.t)?"ja-JP":"vi-VN");
-    const u=new SpeechSynthesisUtterance(r.lang==="en"?r.t.replace(/[_()]/g," "):r.t);u.lang=lang;const v=bestVoice(lang);if(v)u.voice=v;u.rate=(S.rdRate||1)*(lang==="en-US"?0.95:1);u.pitch=1;
-    u.onstart=()=>{if(o.isCurrent())o.onPos&&o.onPos(r.off)};u.onboundary=e=>{if(o.isCurrent())o.onPos&&o.onPos(r.off+(e.charIndex||0))};
+  const us=runs.map((r,k)=>{const lang=r.lang==="vi"?"vi-VN":(PREF_LANG[r.lang]||"en-US");
+    const u=new SpeechSynthesisUtterance(r.lang==="vi"?r.t:r.t.replace(/[_()]/g," "));u.lang=lang;const v=bestVoice(lang);if(v)u.voice=v;
+    u.rate=(S.rdRate||1)*(r.lang==="vi"?1:(isLang&&r.fx?0.88:0.95));u.pitch=1;
+    u.onstart=()=>{if(o.isCurrent())o.onPos&&o.onPos(r.off)};u.onboundary=e=>{if(o.isCurrent()&&!r.fx)o.onPos&&o.onPos(r.off+(e.charIndex||0))};
     const fin=()=>{if(k===runs.length-1&&o.isCurrent())o.onDone&&o.onDone()};u.onend=fin;u.onerror=e=>{if(e.error==="interrupted"||e.error==="canceled")return;fin()};return u});
   us.forEach(u=>speechSynthesis.speak(u));return runs}
 function langFor(text){const clean=String(text);const d=detectLang(clean);if(d!=="en-US")return d;const sl=subLang(curSub());return /^[\x00-\x7f’‘“”]*$/.test(clean)?"en-US":sl}
@@ -1332,8 +1371,14 @@ function rdNext(){if(!RD.playing)return;if(RD.i>=RD.list.length){rdStop();return
   u.onerror=e=>{if(e.error==="interrupted"||e.error==="canceled")return;RD.i++;rdNext()};speechSynthesis.speak(u)}
 /* ---------- Video bài giảng ---------- */
 const VP={key:null,sc:[],si:0,li:-1,playing:false,paused:false,tm:null,ans:{},ended:false,said:""};
-const LOAI={mo_dau:"Mở đầu",giang:"Bài giảng",vi_du:"Ví dụ mẫu",hoi:"Câu hỏi nhanh",tong_ket:"Tổng kết"};
-function cleanVideo(r){return arr(r&&r.canh).filter(c=>c&&(arr(c.loi).length||(c.loai==="hoi"&&c.cau_hoi&&arr(c.lua_chon).length>1))).map(c=>({loai:String(c.loai||"giang"),tieu_de:String(c.tieu_de||""),bang:arr(c.bang).map(String),minh_hoa:c.minh_hoa&&c.minh_hoa.noi_dung?{kieu:String(c.minh_hoa.kieu||"vi_du"),noi_dung:String(c.minh_hoa.noi_dung)}:null,loi:arr(c.loi).map(String),cau_hoi:c.cau_hoi?String(c.cau_hoi):"",lua_chon:arr(c.lua_chon).map(String),dap_an:c.dap_an,giai_thich:c.giai_thich?String(c.giai_thich):""}))}
+const LOAI={mo_dau:"Mở đầu",ban_do:"Sơ đồ tư duy",giang:"Bài giảng",vi_du:"Ví dụ mẫu",hoi:"Câu hỏi nhanh",tong_ket:"Tổng kết"};
+function cleanVideo(r){return arr(r&&r.canh).filter(c=>c&&(arr(c.loi).length||(c.loai==="hoi"&&c.cau_hoi&&arr(c.lua_chon).length>1))).map(c=>({loai:String(c.loai||"giang"),tieu_de:String(c.tieu_de||""),bang:arr(c.bang).map(String),minh_hoa:c.minh_hoa&&c.minh_hoa.noi_dung?{kieu:String(c.minh_hoa.kieu||"vi_du"),noi_dung:String(c.minh_hoa.noi_dung)}:null,loi:arr(c.loi).map(String),cau_hoi:c.cau_hoi?String(c.cau_hoi):"",lua_chon:arr(c.lua_chon).map(String),dap_an:c.dap_an,giai_thich:c.giai_thich?String(c.giai_thich):"",vd:c.vd?String(c.vd):"",tu_duy:cleanMM(c.tu_duy)}))}
+function cleanMM(m){if(!m||!m.goc)return null;const nh=arr(m.nhanh).filter(x=>x&&x.ten).slice(0,6).map(x=>({ten:String(x.ten),y:arr(x.y).map(String).slice(0,3)}));return nh.length?{goc:String(m.goc),nhanh:nh}:null}
+const fx=t=>esc(t).replace(/\{\{(.+?)\}\}/g,'<span class="fx">$1</span>');
+const unfx=t=>String(t||"").replace(/\{\{(.+?)\}\}/g,"$1");
+function mmHtml(m,shown,live,prev){const n=m.nhanh.length,k=Math.min(n,shown);const rows=Math.ceil(n/2);
+  return `<div class="mm"><div class="mm-c" style="grid-row:1 / span ${rows}">${fx(m.goc)}</div>${m.nhanh.map((b,i)=>{const side=i%2?"l":"r";const row=Math.floor(i/2)+1;
+    return `<div class="mm-b ${side} c${i%4} ${i<k?(live&&i>=prev?"in":""):"off"}" style="grid-column:${side==="l"?1:3};grid-row:${row}"><b>${fx(b.ten)}</b>${b.y.length?`<ul>${b.y.map(y=>`<li>${fx(y)}</li>`).join("")}</ul>`:""}</div>`}).join("")}</div>`}
 async function genVideo(sub,bid){const b=arr(sub.outline.bai).find(x=>x.id===bid);const L=await getLesson(sub.sid,bid);if(!b||!L)return;
   const lines=await getLines(sub);const r=await aiJSON(pVideo(sub,b,numbered(lines,b.tu,b.den)),"default");const sc=cleanVideo(r);if(!sc.length)throw{code:"empty_completion"};
   const L2={...L,video:sc};S.lessons[sub.sid+"/"+bid]=L2;await put(`les_${sub.sid}_${bid}`,{kind:"lesson",data:L2})}
@@ -1348,15 +1393,18 @@ function vpInner(key){const sc=S.readerData[key]||[];const act=VP.key===key;cons
   const live=act&&VP.playing;const shownN=!live||c.loai==="hoi"?c.bang.length:Math.min(c.bang.length,Math.max(1,Math.ceil((li+1)/Math.max(1,lines.length)*c.bang.length)));
   const prevN=act?(VP.prevShown||0):0;const mhOn=!live||li>=Math.floor(lines.length/2);
   let body;
-  if(c.loai==="hoi"){const a=VP.ans[key+"#"+si],ok=mcqIdx(c);body=`<div class="vp-q">${esc(c.cau_hoi)}</div><div class="vp-opts">${c.lua_chon.map((o,k)=>{let cl="";if(a!=null){if(k===ok)cl="right";else if(k===a)cl="wrong"}
-      return `<button class="vp-opt ${cl}" data-act="vp-ans" data-k="${k}" ${a!=null?"disabled":""}><b>${"ABCD"[k]||k+1}</b><span>${esc(o)}</span></button>`}).join("")}</div>${a!=null&&c.giai_thich?`<div class="vp-quote" style="font-size:1rem;color:var(--board-ink)">${a===ok?"Chính xác!":"Chưa đúng."} ${esc(c.giai_thich)}</div>`:""}`}
-  else body=`<div class="vp-body ${c.minh_hoa&&c.bang.length?"":"one"}">${c.bang.length?`<ul class="vp-board">${c.bang.slice(0,shownN).map((x,k)=>`<li class="${live&&k>=prevN?"in":""}">${esc(x)}</li>`).join("")}</ul>`:""}${c.minh_hoa&&mhOn?`<div class="vp-mh ${live&&!VP.mhShown?"in":""}">${mhHtml(c.minh_hoa)}</div>`:""}</div>`;
+  if(c.loai==="hoi"){const a=VP.ans[key+"#"+si],ok=mcqIdx(c);body=`<div class="vp-q">${fx(c.cau_hoi)}</div><div class="vp-opts">${c.lua_chon.map((o,k)=>{let cl="";if(a!=null){if(k===ok)cl="right";else if(k===a)cl="wrong"}
+      return `<button class="vp-opt ${cl}" data-act="vp-ans" data-k="${k}" ${a!=null?"disabled":""}><b>${"ABCD"[k]||k+1}</b><span>${fx(o)}</span></button>`}).join("")}</div>${a!=null&&c.giai_thich?`<div class="vp-quote" style="font-size:1rem;color:var(--board-ink)">${a===ok?"Chính xác!":"Chưa đúng."} ${esc(c.giai_thich)}</div>`:""}`}
+  else if(c.tu_duy&&(c.loai==="ban_do"||c.loai==="tong_ket"||!c.bang.length)){const nB=c.tu_duy.nhanh.length;const sB=!live?nB:Math.min(nB,Math.max(1,Math.ceil((li+1)/Math.max(1,lines.length)*nB)));
+    body=`${mmHtml(c.tu_duy,sB,live,act?(VP.prevMM||0):0)}${c.vd&&mhOn?`<div class="vp-vd ${live&&!VP.mhShown?"in":""}"><b>Ví dụ:</b> ${fx(c.vd)}</div>`:""}`;if(act)VP.prevMM=sB}
+  else{const right=c.tu_duy?mmHtml(c.tu_duy,c.tu_duy.nhanh.length,false,0):(c.minh_hoa?mhHtml(c.minh_hoa):"");
+    body=`<div class="vp-body ${right&&c.bang.length?"":"one"}"><div class="stack" style="gap:12px">${c.bang.length?`<ul class="vp-board">${c.bang.slice(0,shownN).map((x,k)=>`<li class="${live&&k>=prevN?"in":""}">${fx(x)}</li>`).join("")}</ul>`:""}${c.vd&&mhOn?`<div class="vp-vd ${live&&!VP.mhShown?"in":""}"><b>Ví dụ:</b> ${fx(c.vd)}</div>`:""}${c.tu_duy&&c.minh_hoa&&mhOn?`<div class="vp-mh">${mhHtml(c.minh_hoa)}</div>`:""}</div>${right&&mhOn?`<div class="vp-mh ${c.tu_duy?"mmbox":""} ${live&&!VP.mhShown?"in":""}">${right}</div>`:""}</div>`}
   if(act){VP.prevShown=shownN;if(mhOn)VP.mhShown=true}
   const sub=live&&li>=0?(lines[li]||""):(act&&VP.said?VP.said:(lines[0]||""));
   const start=!act||(!VP.playing&&!VP.ended&&li<0)?`<button class="vp-start" data-act="vp-play" data-vk="${esc(key)}"><span class="play"><svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span><b style="font-size:1.1rem">${act&&VP.si>0?"Xem tiếp":"Bắt đầu học"} · ${sc.length} cảnh</b><span style="font-size:.85rem;opacity:.85">${esc((sc[si]||{}).tieu_de||"")}</span></button>`:"";
   const end=act&&VP.ended?`<div class="vp-end"><div class="vp-title">Hết bài giảng!</div><p style="margin:0;opacity:.85">Câu hỏi nhanh đúng: ${Object.keys(VP.ans).filter(k=>k.startsWith(key+"#")).filter(k=>VP.ans[k]===mcqIdx(sc[+k.split("#")[1]])).length}/${sc.filter(x=>x.loai==="hoi").length}</p><div class="row" style="justify-content:center"><button class="btn" data-act="vp-replay">Xem lại</button><button class="btn soft" data-act="tab" data-tab="luyen">Luyện tập ngay</button></div></div>`:"";
-  return `<div class="vp-stage ${live&&!VP.paused?"talking":""}" id="vpStage"><div class="vp-in"><div class="vp-top"><span class="vp-tag">${esc(LOAI[c.loai]||"Bài giảng")}</span><span class="vp-num">Cảnh ${si+1}/${sc.length}</span></div><h3 class="vp-title">${esc(c.tieu_de)}</h3>${body}</div>
-      <div class="vp-sub" aria-live="polite">${esc(sub)}</div><span class="vp-teacher" aria-hidden="true">${TEACH_SVG}</span>${start}${end}</div>
+  return `<div class="vp-stage ${live&&!VP.paused?"talking":""}" id="vpStage"><div class="vp-in"><div class="vp-top"><span class="vp-tag">${esc(LOAI[c.loai]||"Bài giảng")}</span><span class="vp-num">Cảnh ${si+1}/${sc.length}</span></div><h3 class="vp-title">${fx(c.tieu_de)}</h3>${body}</div>
+      <div class="vp-sub" aria-live="polite">${fx(sub)}</div><span class="vp-teacher" aria-hidden="true">${TEACH_SVG}</span>${start}${end}</div>
     <div class="vp-ctl"><button class="ibtn" data-act="vp-go" data-d="-1" aria-label="Cảnh trước" ${si>0?"":"disabled"}>⏮</button>
       <button class="btn" data-act="vp-play" data-vk="${esc(key)}" style="min-width:110px">${live&&!VP.paused?"Tạm dừng":"▶ Phát"}</button>
       <button class="ibtn" data-act="vp-go" data-d="1" aria-label="Cảnh sau" ${si<sc.length-1?"":"disabled"}>⏭</button>
@@ -1373,10 +1421,10 @@ function vpRender(){const box=$("#vpBox");if(box&&box.dataset.vk===VP.key)box.in
 function vpSpeak(text,done){const tok={};VP.su2=tok;sayRuns(text,{isCurrent:()=>VP.playing&&VP.su2===tok,onDone:done})}
 function vpStep(){if(!VP.playing||VP.paused)return;const sc=VP.sc,c=sc[VP.si];if(!c){vpEnd();return}const lines=vpLines(c,VP.si);
   if(VP.li+1>=lines.length){if(c.loai==="hoi"&&VP.ans[VP.key+"#"+VP.si]==null){vpRender();return}
-    if(VP.si+1>=sc.length){vpEnd();return}VP.si++;VP.li=-1;VP.prevShown=0;VP.mhShown=false;vpRender();VP.tm=setTimeout(vpStep,900);return}
+    if(VP.si+1>=sc.length){vpEnd();return}VP.si++;VP.li=-1;VP.prevShown=0;VP.prevMM=0;VP.mhShown=false;vpRender();VP.tm=setTimeout(vpStep,900);return}
   const vv=bestVoice("vi-VN");
   if(c.loai!=="hoi"&&vv&&!/google/i.test(vv.name)){const start=VP.li+1,segs=lines.slice(start),offs=[];let text="";
-    segs.forEach(l=>{offs.push(text.length);let t=String(l).trim().replace(/[“”"«»*#_`]/g,"");if(!/[.!?…:;]$/.test(t))t+=".";text+=t+" "});
+    segs.forEach(l=>{offs.push(text.length);let t=String(l).trim().replace(/[“”"«»*#`]/g,"");if(!/[.!?…:;}]$/.test(t))t+=".";text+=t+" "});
     VP.li=start;VP.said=lines[start];vpRender();
     const tok={};VP.su=tok;
     const setLi=ci=>{let k=0;for(let q=0;q<offs.length;q++)if(offs[q]<=ci)k=q;const li=start+k;if(li!==VP.li&&VP.su===tok){VP.li=li;VP.said=lines[li];vpRender()}};
