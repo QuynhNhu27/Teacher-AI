@@ -520,7 +520,7 @@ function errMsg(e){const c=e&&e.code;return({not_granted:"Bạn chưa cho phép 
 const normAns=s=>String(s??"").normalize("NFC").toLowerCase().replace(/\s+/g," ").replace(/[.。!?,;:"'“”‘’]+$/g,"").trim();
 
 /* ---------- trạng thái ---------- */
-const S={store:null,ai:null,subjects:[],sid:null,bid:null,tab:"bai",sources:{},lessons:{},cards:{},prac:{},chats:{},sel:null,busy:null,stopAll:false,review:null,confirmDel:false,aiReady:false,imgLim:null,pmode:"",parsons:{},build:{},hintN:{},said:{},rate:0.85,hideTx:false,chepI:0,vietI:0,showTpl:true,sanCode:null,sanLang:"JavaScript",mcq:{},readerData:{},exam:null,rdRate:0.95,rdVoice:"",stats:{xp:0,days:{}},kanaSet:"hira"};
+const S={store:null,ai:null,subjects:[],sid:null,bid:null,tab:"bai",sources:{},lessons:{},cards:{},prac:{},chats:{},sel:null,busy:null,stopAll:false,review:null,confirmDel:false,aiReady:false,imgLim:null,pmode:"",parsons:{},build:{},hintN:{},said:{},rate:0.85,hideTx:false,chepI:0,vietI:0,showTpl:true,sanCode:null,sanLang:"JavaScript",mcq:{},readerData:{},exam:null,rdRate:1,rdVoice:"",stats:{xp:0,days:{}},kanaSet:"hira"};
 
 /* ---------- môn mẫu (chỉ trong bộ nhớ) ---------- */
 const MAU_SRC=[
@@ -1300,7 +1300,7 @@ function readerHtml(key,items,title){S.readerData[key]=items;const on=RD.key===k
   return `<div class="reader ${on&&!RD.paused?"speaking":""}" data-rk="${esc(key)}"><div class="rbar"><span class="rava" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 8l9-4 9 4-9 4z" fill="currentColor"/><path d="M7 10.5V15c0 1.4 2.2 3 5 3s5-1.6 5-3v-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
     <div style="flex:1;min-width:140px"><b>${esc(title||"Nghe giảng")}</b><div class="note" data-rdstate>${on?(RD.paused?"Đang tạm dừng":"Đang đọc…"):`${items.filter(x=>!x.h).length} đoạn · chạm vào câu nào để nghe từ đó`}</div></div>
     <button class="btn" data-act="rd-play" data-rk="${esc(key)}">${on&&!RD.paused?"Tạm dừng":(on?"Đọc tiếp":"▶ Nghe giảng")}</button><button class="btn ghost" data-act="rd-stop" ${on?"":"hidden"}>Dừng</button></div>
-    <div class="rbar"><select class="inp" id="rdRate" style="width:auto" aria-label="Tốc độ đọc">${[["0.85","Chậm, dễ nghe"],["0.95","Vừa"],["1.1","Nhanh"],["1.3","Rất nhanh"]].map(([v,n])=>`<option value="${v}" ${String(S.rdRate)===v?"selected":""}>${n}</option>`).join("")}</select>
+    <div class="rbar"><select class="inp" id="rdRate" style="width:auto" aria-label="Tốc độ đọc">${[["0.9","Chậm"],["1","Vừa"],["1.15","Nhanh"],["1.3","Rất nhanh"]].map(([v,n])=>`<option value="${v}" ${String(S.rdRate)===v?"selected":""}>${n}</option>`).join("")}</select>
     ${key.startsWith("les:")?`<button class="btn ghost" data-act="regen-sum">Giảng lại dễ hiểu hơn</button>`:""}</div>
     <div class="rtext">${items.map((x,i)=>x.h?`<p class="rp h" data-pi="${i}">${esc(x.t)}</p>`:`<p class="rp" data-pi="${i}">${splitSpeech(x.t).map((c,ci)=>`<span class="rs" data-act="rd-from" data-rk="${esc(key)}" data-pi="${i}" data-ci="${ci}">${esc(c)}</span>`).join("")}</p>`).join("")}</div></div>`}
 function rdMark(){document.querySelectorAll(".rp.reading,.rs.on").forEach(e=>e.classList.remove("reading","on"));
@@ -1312,7 +1312,7 @@ function rdMark(){document.querySelectorAll(".rp.reading,.rs.on").forEach(e=>e.c
   if(el){el.classList.add("reading");const box=el.closest(".rtext");if(box){const top=el.offsetTop-box.offsetTop;if(top<box.scrollTop||top>box.scrollTop+box.clientHeight-60)box.scrollTo({top:top-20,behavior:"smooth"})}}}
 function rdNext(){if(!RD.playing)return;if(RD.i>=RD.list.length){rdStop();return}const it=RD.list[RD.i];rdMark();
   const u=new SpeechSynthesisUtterance(it.text.replace(/[“”"«»]/g,""));const lang=/[぀-ヿ一-鿿가-힯]/.test(it.text)&&!VIET.test(it.text)?detectLang(it.text):"vi-VN";
-  u.lang=lang;const v=rdVoice(lang);if(v)u.voice=v;u.rate=S.rdRate||0.95;u.pitch=1.05;
+  u.lang=lang;const v=rdVoice(lang);if(v)u.voice=v;u.rate=S.rdRate||0.95;u.pitch=1;
   u.onend=()=>{if(!(RD.playing&&RD.list[RD.i]===it))return;RD.i++;const nx=RD.list[RD.i];const gap=!nx?0:(nx.pi!==it.pi?650:(/[.!?。！？]\s*$/.test(it.text)?220:120));clearTimeout(RD.tm);RD.tm=setTimeout(()=>{if(!RD.paused)rdNext()},gap)};
   u.onerror=e=>{if(e.error==="interrupted"||e.error==="canceled")return;RD.i++;rdNext()};speechSynthesis.speak(u)}
 /* ---------- Video bài giảng ---------- */
@@ -1346,22 +1346,35 @@ function vpInner(key){const sc=S.readerData[key]||[];const act=VP.key===key;cons
       <button class="btn" data-act="vp-play" data-vk="${esc(key)}" style="min-width:110px">${live&&!VP.paused?"Tạm dừng":"▶ Phát"}</button>
       <button class="ibtn" data-act="vp-go" data-d="1" aria-label="Cảnh sau" ${si<sc.length-1?"":"disabled"}>⏭</button>
       <div class="vp-tl" role="list">${sc.map((x,k)=>`<button class="${x.loai==="hoi"?"q ":""}${k===si?"cur":(k<si?"done":"")}" data-act="vp-seek" data-k="${k}" title="${esc((k+1)+". "+x.tieu_de)}" aria-label="${esc("Cảnh "+(k+1)+": "+x.tieu_de)}"></button>`).join("")}</div>
-      <select class="inp" id="rdRate" style="width:auto" aria-label="Tốc độ giảng">${[["0.85","Chậm"],["0.95","Vừa"],["1.1","Nhanh"],["1.3","Rất nhanh"]].map(([v,n])=>`<option value="${v}" ${String(S.rdRate)===v?"selected":""}>${n}</option>`).join("")}</select>
+      <select class="inp" id="rdRate" style="width:auto" aria-label="Tốc độ giảng">${[["0.9","Chậm"],["1","Vừa"],["1.15","Nhanh"],["1.3","Rất nhanh"]].map(([v,n])=>`<option value="${v}" ${String(S.rdRate)===v?"selected":""}>${n}</option>`).join("")}</select>
       <button class="ibtn" data-act="vp-full" aria-label="Toàn màn hình">⛶</button>
-      <div class="vp-chap">Đang học: ${esc(c.tieu_de)} · bấm thanh bên trên để chuyển cảnh</div></div>`}
+      <div class="vp-chap">Đang học: ${esc(c.tieu_de)} · ${voiceNote()}</div></div>`}
+function voiceNote(){const v=bestVoice("vi-VN");if(!v)return "Đang tải giọng đọc…";const nm=v.name.replace(/Microsoft |Online |\(Natural\)|- Vietnamese \(Vietnam\)|Vietnamese/g,"").trim();
+  return /natural|neural|online/i.test(v.name)?`Giọng ${esc(nm)} (tự nhiên)`:`<span style="color:var(--bad)">Đang dùng giọng máy thường (${esc(nm)}). Mở trang bằng Microsoft Edge để có giọng HoaiMy tự nhiên.</span>`}
 function videoHtml(key,scenes){S.readerData[key]=scenes;return `<div class="vp" id="vpBox" data-vk="${esc(key)}">${vpInner(key)}</div>`}
 function vpRender(){const box=$("#vpBox");if(box&&box.dataset.vk===VP.key)box.innerHTML=vpInner(VP.key)}
 function vpSpeak(text,done){const chunks=splitSpeech(text);let k=0;const one=()=>{if(!VP.playing)return;if(k>=chunks.length){done();return}
   const u=new SpeechSynthesisUtterance(chunks[k].replace(/[“”"«»*#_`]/g,""));const lang=/[぀-ヿ一-鿿가-힯]/.test(chunks[k])&&!VIET.test(chunks[k])?detectLang(chunks[k]):"vi-VN";
-  u.lang=lang;const v=rdVoice(lang);if(v)u.voice=v;u.rate=S.rdRate||0.95;u.pitch=1.05;u.onend=()=>{k++;one()};u.onerror=e=>{if(e.error==="interrupted"||e.error==="canceled")return;k++;one()};speechSynthesis.speak(u)};one()}
+  u.lang=lang;const v=rdVoice(lang);if(v)u.voice=v;u.rate=S.rdRate||0.95;u.pitch=1;u.onend=()=>{k++;one()};u.onerror=e=>{if(e.error==="interrupted"||e.error==="canceled")return;k++;one()};speechSynthesis.speak(u)};one()}
 function vpStep(){if(!VP.playing||VP.paused)return;const sc=VP.sc,c=sc[VP.si];if(!c){vpEnd();return}const lines=vpLines(c,VP.si);
   if(VP.li+1>=lines.length){if(c.loai==="hoi"&&VP.ans[VP.key+"#"+VP.si]==null){vpRender();return}
     if(VP.si+1>=sc.length){vpEnd();return}VP.si++;VP.li=-1;VP.prevShown=0;VP.mhShown=false;vpRender();VP.tm=setTimeout(vpStep,900);return}
+  const vv=bestVoice("vi-VN");
+  if(c.loai!=="hoi"&&vv&&!/google/i.test(vv.name)){const start=VP.li+1,segs=lines.slice(start),offs=[];let text="";
+    segs.forEach(l=>{offs.push(text.length);let t=String(l).trim().replace(/[“”"«»*#_`]/g,"");if(!/[.!?…:;]$/.test(t))t+=".";text+=t+" "});
+    VP.li=start;VP.said=lines[start];vpRender();
+    const u=new SpeechSynthesisUtterance(text);u.lang="vi-VN";u.voice=vv;u.rate=S.rdRate||1;u.pitch=1;VP.su=u;let gotB=false;
+    const setLi=ci=>{let k=0;for(let q=0;q<offs.length;q++)if(offs[q]<=ci)k=q;const li=start+k;if(li!==VP.li&&VP.su===u){VP.li=li;VP.said=lines[li];vpRender()}};
+    u.onboundary=e=>{gotB=true;setLi(e.charIndex||0)};
+    let el=0,last=Date.now();const est=setInterval(()=>{const now=Date.now();if(!VP.paused)el+=now-last;last=now;if(gotB||VP.su!==u){clearInterval(est);return}setLi(el/1000*13*(S.rdRate||1))},250);
+    u.onend=()=>{clearInterval(est);if(!VP.playing||VP.su!==u)return;VP.su=null;VP.li=lines.length-1;clearTimeout(VP.tm);VP.tm=setTimeout(vpStep,550)};
+    u.onerror=e=>{clearInterval(est);if(e.error==="interrupted"||e.error==="canceled"||VP.su!==u)return;VP.su=null;VP.li=lines.length-1;vpStep()};
+    speechSynthesis.speak(u);return}
   VP.li++;VP.said=lines[VP.li];vpRender();vpSpeak(lines[VP.li],()=>{clearTimeout(VP.tm);VP.tm=setTimeout(vpStep,/[.!?]\s*$/.test(lines[VP.li]||"")?260:160)})}
 function vpEnd(){VP.playing=false;VP.ended=true;VP.paused=false;vpRender()}
-function vpHalt(){VP.playing=false;VP.paused=false;clearTimeout(VP.tm);try{speechSynthesis.cancel()}catch(e){}}
+function vpHalt(){VP.su=null;VP.playing=false;VP.paused=false;clearTimeout(VP.tm);try{speechSynthesis.cancel()}catch(e){}}
 function vpStart(key,si){if(!("speechSynthesis" in window)){toast("Trình duyệt này không đọc được thành tiếng.","bad");return}
-  rdStop();clearTimeout(VP.tm);speechSynthesis.cancel();if(VP.key!==key){VP.ans=Object.fromEntries(Object.entries(VP.ans).filter(([k])=>!k.startsWith(key+"#")))}
+  VP.su=null;rdStop();clearTimeout(VP.tm);speechSynthesis.cancel();if(VP.key!==key){VP.ans=Object.fromEntries(Object.entries(VP.ans).filter(([k])=>!k.startsWith(key+"#")))}
   VP.key=key;VP.sc=S.readerData[key]||[];VP.si=si||0;VP.li=-1;VP.prevShown=0;VP.mhShown=false;VP.playing=true;VP.paused=false;VP.ended=false;
   if(!viVoices().length&&speechSynthesis.getVoices().length)toast("Máy chưa có giọng đọc tiếng Việt. Mở trang bằng Microsoft Edge để có giọng HoaiMy hoặc NamMinh rất tự nhiên.");
   vpRender();VP.tm=setTimeout(vpStep,350)}
@@ -1505,9 +1518,9 @@ const ACT={
   "rd-from":a=>{const s=getSelection&&getSelection().toString().trim();if(s)return;rdStart(a.dataset.rk,+a.dataset.pi,+a.dataset.ci||0)},
   "gen-video":async()=>{const sub=curSub();if(S.busy)return;vpHalt();setBusy({text:"Thầy cô AI đang soạn video bài giảng…"});try{await genVideo(sub,S.bid);VP.key=null}catch(e){toast(errMsg(e),"bad")}S.busy=null;renderMain()},
   "vp-play":a=>{const k=a.dataset.vk;if(VP.key===k&&VP.playing){if(VP.paused){VP.paused=false;if(speechSynthesis.paused)speechSynthesis.resume();else if(!speechSynthesis.speaking)vpStep()}else{VP.paused=true;speechSynthesis.pause()}vpRender()}
-    else if(VP.key===k&&!VP.ended&&(VP.si>0||VP.li>=0)){VP.playing=true;VP.paused=false;VP.li=-1;speechSynthesis.cancel();vpRender();VP.tm=setTimeout(vpStep,300)}else vpStart(k,0)},
+    else if(VP.key===k&&!VP.ended&&(VP.si>0||VP.li>=0)){VP.su=null;VP.playing=true;VP.paused=false;VP.li=-1;speechSynthesis.cancel();vpRender();VP.tm=setTimeout(vpStep,300)}else vpStart(k,0)},
   "vp-go":a=>{if(!VP.key){const box=$("#vpBox");if(!box)return;VP.key=box.dataset.vk;VP.sc=S.readerData[VP.key]||[];VP.si=0}const n=VP.sc.length;const si=Math.max(0,Math.min(n-1,VP.si+(+a.dataset.d)));ACT["vp-seek"]({dataset:{k:si}})},
-  "vp-seek":a=>{const box=$("#vpBox");if(!box)return;const key=box.dataset.vk;const was=VP.key===key&&VP.playing;clearTimeout(VP.tm);speechSynthesis.cancel();
+  "vp-seek":a=>{VP.su=null;const box=$("#vpBox");if(!box)return;const key=box.dataset.vk;const was=VP.key===key&&VP.playing;clearTimeout(VP.tm);speechSynthesis.cancel();
     VP.key=key;VP.sc=S.readerData[key]||[];VP.si=+a.dataset.k;VP.li=-1;VP.prevShown=0;VP.mhShown=false;VP.ended=false;VP.said="";
     if(was){VP.playing=true;VP.paused=false;vpRender();VP.tm=setTimeout(vpStep,300)}else{VP.playing=false;vpRender()}},
   "vp-ans":a=>{const c=VP.sc[VP.si]||(S.readerData[($("#vpBox")||{dataset:{}}).dataset.vk]||[])[VP.si];if(!c)return;const key=VP.key||$("#vpBox").dataset.vk;VP.key=key;if(!VP.sc.length)VP.sc=S.readerData[key];
@@ -1626,7 +1639,7 @@ document.addEventListener("change",e=>{const id=e.target.id;
   if(id==="pracSel"){QS=null;S.bid=e.target.value;S.chepI=0;S.vietI=0;renderMain()}
   else if(id==="rate")S.rate=+e.target.value;
   else if(id==="rdVoice"){S.rdVoice=e.target.value;try{localStorage.setItem("htd_voice",S.rdVoice)}catch(x){}if(RD.playing&&!RD.paused){const it=RD.list[RD.i]||{};rdStart(RD.key,it.pi||0,it.ci||0)}}
-  else if(id==="rdRate"){S.rdRate=+e.target.value;try{localStorage.setItem("htd_rate",S.rdRate)}catch(x){}if(VP.playing&&!VP.paused){speechSynthesis.cancel();clearTimeout(VP.tm);VP.li=Math.max(-1,VP.li-1);VP.tm=setTimeout(vpStep,200)}if(RD.playing&&!RD.paused){const it=RD.list[RD.i]||{};rdStart(RD.key,it.pi||0,it.ci||0)}}
+  else if(id==="rdRate"){S.rdRate=+e.target.value;try{localStorage.setItem("htd_rate",S.rdRate)}catch(x){}if(VP.playing&&!VP.paused){VP.su=null;speechSynthesis.cancel();clearTimeout(VP.tm);VP.li=Math.max(-1,VP.li-1);VP.tm=setTimeout(vpStep,200)}if(RD.playing&&!RD.paused){const it=RD.list[RD.i]||{};rdStart(RD.key,it.pi||0,it.ci||0)}}
   else if(id==="hideTx"){S.hideTx=e.target.checked;renderMain()}
   else if(id==="tplTg"){S.showTpl=e.target.checked;drawWriteBg()}
   else if(id==="sanLang"){S.sanLang=e.target.value;S.sanCode=$("#sanEd").value;renderMain()}});
@@ -1643,7 +1656,7 @@ $("#chatIn").addEventListener("input",grow);
 $("#chatIn").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();$("#chatForm").requestSubmit()}});
 
 /* ---------- khởi động ---------- */
-try{const vv=localStorage.getItem("htd_voice");if(vv)S.rdVoice=vv;const rr=localStorage.getItem("htd_rate");if(rr)S.rdRate=+rr}catch(e){}
+try{const vv=localStorage.getItem("htd_voice");if(vv)S.rdVoice=vv;const rr=localStorage.getItem("htd_rate");if(rr&&["0.9","1","1.15","1.3"].includes(rr))S.rdRate=+rr}catch(e){}
 try{const th=localStorage.getItem("htd_theme");if(th)document.documentElement.dataset.theme=th;if(localStorage.getItem("htd_wide")){document.body.classList.add("chat-wide");$("#wideBtn").textContent="Thu nhỏ"}}catch(e){}
 S.store=makeLocal();
 S.subjects=[MEM.sub_mau];S.sid="mau";S.bid="b1";
