@@ -2,7 +2,7 @@
 
 Website học tập cho sinh viên: tải giáo trình lên, AI chia bài, giải nghĩa từng dòng/câu bằng lời dễ hiểu, tóm tắt có người đọc, ra đề trắc nghiệm và bài luyện tập. Dùng được cho mọi môn: lập trình, ngoại ngữ, khoa học, lý thuyết (triết, sử…).
 
-Toàn bộ ứng dụng nằm trong một file `index.html` (HTML, CSS, JavaScript thuần, không cần build).
+Viết bằng HTML, CSS và JavaScript thuần, không dùng framework, không cần cài đặt.
 
 ## Tính năng
 
@@ -39,11 +39,49 @@ Toàn bộ ứng dụng nằm trong một file `index.html` (HTML, CSS, JavaScri
 - Điểm XP và chuỗi ngày học, mục tiêu 50 XP mỗi ngày.
 - Tiến độ đồng bộ theo tài khoản giữa các thiết bị.
 
+## Cấu trúc thư mục
+
+```
+├─ index.html            Khung trang, nạp CSS và các file JavaScript theo thứ tự
+├─ css/
+│  └─ style.css          Màu sắc, bố cục, giao diện sáng/tối, điện thoại
+├─ js/
+│  ├─ utils.js           Tiện ích dùng chung và trạng thái chung S
+│  ├─ storage.js         Lưu tiến độ theo tài khoản hoặc trên trình duyệt
+│  ├─ ai.js              Gọi AI, tạo prompt, đọc kết quả JSON
+│  ├─ doc-reader.js      Đọc PDF, Word, PowerPoint, ảnh scan; lọc watermark
+│  ├─ course-data.js     Dữ liệu môn học, bài học, tiến độ
+│  ├─ render.js          Vẽ thanh danh sách môn và vùng nội dung chính
+│  ├─ speech.js          Chọn giọng đọc, đọc xen tiếng Việt và tiếng nước ngoài
+│  ├─ lesson.js          Trang bài học: giải nghĩa từng dòng, đoạn gốc
+│  ├─ practice.js        Bài tập, tập viết tay, chạy JavaScript bằng Web Worker
+│  ├─ xp.js              Điểm XP và chuỗi ngày học
+│  ├─ quick-learn.js     Học nhanh kiểu Duolingo, bảng chữ cái tiếng Nhật
+│  ├─ exam.js            Tóm tắt toàn môn, thi thử
+│  ├─ flashcards.js      Thẻ ghi nhớ Leitner
+│  ├─ chat.js            Khung hỏi AI, chọn dòng để hỏi
+│  ├─ ai-tasks.js        Chia bài, giải nghĩa, tóm tắt, tạo bài luyện
+│  ├─ reader.js          Đọc to phần tóm tắt
+│  ├─ video.js           Video bài giảng, sơ đồ tư duy
+│  ├─ add-course.js      Thêm môn học mới
+│  ├─ sample-course.js   Môn học mẫu
+│  ├─ events.js          Xử lý mọi nút bấm và phím tắt
+│  └─ main.js            Khởi động ứng dụng
+└─ tools/
+   └─ build.py           Gộp tất cả thành một file để đăng lên Claude Artifact
+```
+
 ## Cách chạy
 
-Trang được thiết kế để chạy dưới dạng **Claude Artifact** trên claude.ai. Các tính năng AI (giải nghĩa, chấm bài, đọc ảnh) và đồng bộ tiến độ dùng runtime `window.claude` của claude.ai.
+**Trên máy:** mở `index.html` bằng trình duyệt, hoặc chạy `python -m http.server` rồi vào http://localhost:8000.
 
-Nếu mở `index.html` bên ngoài claude.ai (ví dụ GitHub Pages hoặc mở file trực tiếp), giao diện, môn mẫu, chạy JavaScript và đọc phát âm vẫn hoạt động, nhưng các tính năng AI sẽ tắt và tiến độ chỉ lưu trên trình duyệt đó.
+**Trên claude.ai (có AI):** chạy `python tools/build.py` để tạo `dist/teacher-ai.html` (một file duy nhất), rồi đăng file đó làm **Claude Artifact**. Các tính năng AI (giải nghĩa, chấm bài, đọc ảnh) và đồng bộ tiến độ dùng runtime `window.claude` của claude.ai.
+
+Khi mở ngoài claude.ai, giao diện, môn mẫu, chạy JavaScript và đọc phát âm vẫn hoạt động, nhưng các tính năng AI sẽ tắt và tiến độ chỉ lưu trên trình duyệt đó.
+
+## Ghi chú về việc dùng AI
+
+Dự án có sử dụng trợ lý AI (Claude) hỗ trợ viết code. Ý tưởng, yêu cầu tính năng, kiểm thử và chỉnh sửa theo trải nghiệm thực tế do tác giả thực hiện.
 
 ## Công nghệ
 
